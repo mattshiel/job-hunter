@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import urllib
+import urllib.request
 
 def create_search_url(title, location):
     """Creates the 'Indeed' specific URL 
@@ -11,20 +11,26 @@ def create_search_url(title, location):
     location_parametres = "&l=" 
 
     # Build url with job title and location
-    # Using .format() as it's more efficient and lightweight
     # Adapted from https://www.pythoncentral.io/how-to-build-strings-using-format/
-    url = "{0}{1}{2}{3}".format(base, title, location_parametres, location)
+    url = "{0}{1}{2}{3}".format(base, title, location_parametres, location)     # Using .format() as it's more efficient and lightweight
 
     return url
 
-# Get all job posting links
 def get_links(url):
     """Parses a given URL and returns all
     all job posting links.
     """
 
-    urllib.request.urlopen(url)
-    return
+    headers = {}
+    # Replace default user agent in request header to avoid being identified as a robot
+    # Adapted  from https://pythonprogramming.net/urllib-tutorial-python-3/
+    headers['User-Agent'] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0"
+    # Replace default request with a request with a spoofed header
+    req = urllib.request.Request(url, headers = headers)
+    # return HTTP.client.HTTPResponse
+    html_doc = urllib.request.urlopen(req)
+
+    return html_doc
 
 # Program title
 print(
@@ -41,4 +47,12 @@ title = "+".join(title)
 # Promt user for job location
 location = input("What location?: ").split()
 location = "+".join(location)
+
+# Create the url
+url = create_search_url(title, location)
+
+# Parse the page and get the jobs
+print(type(get_links(url)))
+
+
 
