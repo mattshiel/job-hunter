@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
-import webbrowser
+import urllib
 
-def open_webpage():
-    webbrowser.open(url)
-    return
-
-def create_url(job_title):
+def create_search_url(title, location):
+    """Creates the 'Indeed' specific URL 
+    that will be parsed for job posting 
+    links from the users desired job and location.
+    """
 
     base = "https://ie.indeed.com/jobs?q=" 
     location_parametres = "&l=" 
@@ -13,13 +13,20 @@ def create_url(job_title):
     # Build url with job title and location
     # Using .format() as it's more efficient and lightweight
     # Adapted from https://www.pythoncentral.io/how-to-build-strings-using-format/
-    query = "{0}{1}".format(base, job_title)
+    url = "{0}{1}{2}{3}".format(base, title, location_parametres, location)
 
-    # search_url = "https://ie.indeed.com/jobs?q{0}&l={1}".format(job_title, location)
-    return query
+    return url
 
-# Start program and prompt user for their job query and location
+# Get all job posting links
+def get_links(url):
+    """Parses a given URL and returns all
+    all job posting links.
+    """
 
+    urllib.request.urlopen(url)
+    return
+
+# Program title
 print(
     "\nIndeed Scrapper 1.0\n\n"
     "Hello!\n\n" 
@@ -27,8 +34,11 @@ print(
     "followed by your desired location.\n"
     )
 
-job_title = input("What role are you looking for?: ").split()
-job_title = "+".join(job_title)
-# location = input("What location would you like?: ").split()
+# Promt user for job title
+title = input("What role are you looking for?: ").split()
+title = "+".join(title)
 
-print(create_url(job_title))
+# Promt user for job location
+location = input("What location?: ").split()
+location = "+".join(location)
+
