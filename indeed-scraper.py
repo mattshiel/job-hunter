@@ -16,9 +16,9 @@ def create_search_url(title, location):
 
     return url
 
-def get_links(url):
-    """Parses a given URL and returns all
-    all job posting links.
+def get_soup(url):
+    """Parses a given URL and returns a
+    BeautifulSoup object
     """
 
     headers = {}
@@ -29,8 +29,8 @@ def get_links(url):
     req = urllib.request.Request(url, headers = headers)
     # return HTTP.client.HTTPResponse
     html_doc = urllib.request.urlopen(req)
-
-    return html_doc
+    soup = BeautifulSoup(html_doc, 'lxml')
+    return soup
 
 # Program title
 print(
@@ -52,7 +52,7 @@ location = "+".join(location)
 url = create_search_url(title, location)
 
 # Parse the page and get the jobs
-print(type(get_links(url)))
+print(get_soup(url).prettify())
 
 
 
