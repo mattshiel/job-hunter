@@ -16,7 +16,9 @@ def create_search_url(title, location):
     return url
 
 def get_soup(url):
-    """Parses a given URL and returns a BeautifulSoup object"""
+    """Parses a given URL and returns the page 
+    as a BeautifulSoup object
+    """
 
     headers = {}
     # Replace default user agent in request header to avoid being identified as a robot
@@ -32,7 +34,8 @@ def get_soup(url):
 
 def get_urls(soup):
     """Parses through a BeautifulSoup document and retrieves all 
-    job listing URLs"""
+    job listing URLs
+    """
 
     tag = "a"
     tag_class = "jobtitle turnstileLink "
@@ -65,6 +68,8 @@ soup = get_soup(url)
 
 # Get all job listings 
 urls = get_urls(soup)
+
+data = []
 
 for url in urls:
     print(url.get_text(" ", strip=True))
