@@ -21,23 +21,26 @@ def get_soup(url):
     headers = {}
     # Replace default user agent in request header to avoid being identified as a robot
     # Adapted  from https://pythonprogramming.net/urllib-tutorial-python-3/
-    headers['User-Agent'] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:67.0) Gecko/20100101 Firefox/67.0"
+    headers['User-Agent'] = "Mozilla/4.0 (Macintosh; Intel Mac OS X 10.13; rv:67.0) Gecko/20100101 Firefox/67.0"
     # Replace default request with a request with a spoofed header
     req = urllib.request.Request(url, headers = headers)
     # return HTTP.client.HTTPResponse
     html_doc = urllib.request.urlopen(req)
     soup = BeautifulSoup(html_doc, 'lxml')
+
     return soup
 
 def get_urls(soup):
     """Parses through a BeautifulSoup document and retrieves all 
     job listing URLs"""
 
-    urls = soup.find('a', attrs={'class': 'jobtitle'}) # All job listings contain an <a> tag and a CSS class with the value 'jobtitle'
+    tag = "a"
+    tag_class = "jobtitle turnstileLink "
+
+    urls = soup.find_all(tag, class_= tag_class) # All job listings contain an <a> tag and a CSS class with the value 'jobtitle turnstileLink'
 
     return urls
-
-
+    
 # Program title
 print(
     "\nIndeed Scrapper 1.0\n\n"
@@ -57,7 +60,11 @@ location = "+".join(location)
 # Create the url
 url = create_search_url(title, location)
 
-# Parse the page and get the jobs
+# Parse the page 
 soup = get_soup(url)
 
-print(get_urls(soup))
+# Get all job listings 
+urls = get_urls(soup)
+
+for url in urls:
+    print(url.get_text(" ", strip=True))
