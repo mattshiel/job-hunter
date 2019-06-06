@@ -32,7 +32,7 @@ def get_soup(url):
 
     return soup
 
-def get_urls(soup):
+def get_job_listings(soup):
     """Parses through a BeautifulSoup document and retrieves all 
     job listing URLs
     """
@@ -40,7 +40,7 @@ def get_urls(soup):
     # INSPECTED JOB STRUCTURE TO BE SCRAPED 
     #
     # The job card itself:
-    # <div data-tn-component="organicJob" class="jobsearch-SerpJobCard">
+    # <div data-tn-component="organicJob" class="jobsearch-SerpJobCard"> // Done: n
     #
     # It's children:
     #   <div class="title" href="link to the job page" title="job name" data-tn-element="jobTitle"></div>
@@ -56,10 +56,11 @@ def get_urls(soup):
 
     tag = "div"
     tag_class = "jobsearch-SerpJobCard"
+    attributes = {"data-tn-component":"organicJob"} # HTML data tags can only be searched if put into a dictionary
 
-    urls = soup.find_all(tag, attrs = {"data-tn-component":"organicJob"}, class_ = tag_class) # All job listings contain an <a> tag and a CSS class with the value 'jobtitle turnstileLink'
+    jobListings = soup.find_all(tag, attrs = attributes, class_ = tag_class) # All job listings contain a data component 'organicJob' and a CSS class with the value 'jobtitle turnstileLink'
 
-    return urls
+    return jobListings
     
 # Program title
 print(
@@ -69,25 +70,21 @@ print(
     "followed by your desired location.\n"
     )
 
-# Promt user for job title
-title = input("What role are you looking for?: ").split()
-title = "+".join(title)
+# Indeed search urls we're scraping must conform to the following structure:
+# The job title the user enters must have spaces replaced with +'s
 
-# Promt user for job location
-location = input("What location?: ").split()
-location = "+".join(location)
+title = input("What role are you looking for?: ").split() # Split each word into a list
+title = "+".join(title) # Replace spaces with +'s
 
-# Create the url
+location = input("What location?: ").split() 
+location = "+".join(location) 
+
+# Create the url to be scraped
 url = create_search_url(title, location)
 
 # Parse the page 
 soup = get_soup(url)
 
 # Get all job listings 
-urls = get_urls(soup)
-print(urls)
-
-# data = []
-
-# for url in urls:
-#     print(url.get_text(" ", strip=True))
+jobListings = get_job_listings(soup)
+print(jobListings)
