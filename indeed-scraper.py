@@ -54,10 +54,10 @@ def get_urls(soup):
     #
     # Next step: adjust function to be something like 'get_jobs' that fetches all info and outputs it to a file
 
-    tag = "a"
-    tag_class = "jobtitle turnstileLink "
+    tag = "div"
+    tag_class = "jobsearch-SerpJobCard"
 
-    urls = soup.find_all(tag, class_= tag_class) # All job listings contain an <a> tag and a CSS class with the value 'jobtitle turnstileLink'
+    urls = soup.find_all(tag, attrs = {"data-tn-component":"organicJob"}, class_ = tag_class) # All job listings contain an <a> tag and a CSS class with the value 'jobtitle turnstileLink'
 
     return urls
     
@@ -85,8 +85,9 @@ soup = get_soup(url)
 
 # Get all job listings 
 urls = get_urls(soup)
+print(urls)
 
-data = []
+# data = []
 
-for url in urls:
-    print(url.get_text(" ", strip=True))
+# for url in urls:
+#     print(url.get_text(" ", strip=True))
