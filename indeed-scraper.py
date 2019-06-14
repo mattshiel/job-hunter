@@ -32,7 +32,7 @@ def get_soup(url):
 
     return soup
 
-def get_job_listings(soup):
+def get_listings(soup):
     """Parses through a BeautifulSoup document and retrieves all 
     job listing URLs
     """
@@ -43,24 +43,74 @@ def get_job_listings(soup):
     # <div data-tn-component="organicJob" class="jobsearch-SerpJobCard"> // Done: n
     #
     # It's children:
-    #   <div class="title" href="link to the job page" title="job name" data-tn-element="jobTitle"></div>
+    #   <div class="title" href="job page" title="job name" data-tn-element="jobTitle"></div>
     #   <div class="sjcl">
     #       <span class="location"> | get the text from the span
     #       <span class="company"> | get the text from the span
     #   </div>
     #   <div class="summary"> | get the text from the summary
     #
-    # All in all this data should provide the job name, link, location, company and summary
+    # All in all this data should provide the job name, link, 
+    # location, company and summary
     #
     # Next step: adjust function to be something like 'get_jobs' that fetches all info and outputs it to a file
 
     tag = "div"
-    tag_class = "jobsearch-SerpJobCard"
     attributes = {"data-tn-component":"organicJob"} # HTML data tags can only be searched if put into a dictionary
+    tag_class = "jobsearch-SerpJobCard"
 
-    jobListings = soup.find_all(tag, attrs = attributes, class_ = tag_class) # All job listings contain a data component 'organicJob' and a CSS class with the value 'jobtitle turnstileLink'
+    listings = soup.find_all(tag, attrs = attributes, class_ = tag_class) # All job listings contain a data component 'organicJob' and a CSS class with the value 'jobtitle turnstileLink'
+    
+    for listing in listings:
+        # Get job names
+        current_listing = listing.find("div", class_ = "title")
+        job_name = current_listing.a.get('title')
+        job_name = " ".join(job_name.split())
+        print(job_name)
 
-    return jobListings
+        # Get company names
+        current_listing = listing.find("span", class_ = "company")  
+        try:
+            company_name = current_listing.a.string
+            company_name = " ".join(company_name.split())
+            print(company_name)
+        except:
+            company_name = current_listing.string
+            company_name = " ".join(company_name.split())
+            print(company_name)
+
+        # Get job location
+        current_listing = listing.find("span", class_ = "location")
+        print(current_listing.text)
+
+        # Get job links
+        current_listing = listing.find("div", class_ = "title")
+        print(current_listing.a.get('href'))
+
+        # # Get job summaries
+        current_listing = listing.find("div", class_ = "summary")
+        job_summary = current_listing.text
+        job_summary = " ".join(job_summary.split())
+        print(job_summary + "\n")
+
+
+
+    # for listing in listings:
+    #     print(listings)
+
+    return listings
+
+def export_info(listings):
+    """description
+    """
+    # Get specific info from each job listing
+
+    # title_link_attributes = {}
+
+    # for job in listings:
+    #     title_link_attributes = listings.find("div", class_="title").attrs
+
+    return
     
 # Program title
 print(
@@ -86,5 +136,7 @@ url = create_search_url(title, location)
 soup = get_soup(url)
 
 # Get all job listings 
-jobListings = get_job_listings(soup)
-print(jobListings)
+listings = get_listings(soup)
+
+# Export job information to Excel
+# export_info(listings)
