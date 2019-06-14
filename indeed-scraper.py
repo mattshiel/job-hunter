@@ -85,7 +85,10 @@ def get_listings(soup):
 
         # Get job links
         current_listing = listing.find("div", class_ = "title")
-        print(current_listing.a.get('href'))
+        job_link = current_listing.a.get('href')
+        altered_url = "https://ie.indeed.com" + job_link
+       
+        print(altered_url)
 
         # # Get job summaries
         current_listing = listing.find("div", class_ = "summary")
