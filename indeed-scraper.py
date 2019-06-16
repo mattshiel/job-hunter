@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import urllib.request
+import csv
 
 def create_search_url(title, location):
     """Creates the 'Indeed' specific URL that will be parsed for job posting 
@@ -33,27 +34,14 @@ def get_soup(url):
     return soup
 
 def get_listings(soup):
-    """Parses through a BeautifulSoup document and retrieves all 
-    job listing URLs
+    """Parses through a BeautifulSoup document, retrieves all 
+    job listings and exports to a csv file
     """
 
-    # INSPECTED JOB STRUCTURE TO BE SCRAPED 
-    #
-    # The job card itself:
-    # <div data-tn-component="organicJob" class="jobsearch-SerpJobCard"> // Done: n
-    #
-    # It's children:
-    #   <div class="title" href="job page" title="job name" data-tn-element="jobTitle"></div>
-    #   <div class="sjcl">
-    #       <span class="location"> | get the text from the span
-    #       <span class="company"> | get the text from the span
-    #   </div>
-    #   <div class="summary"> | get the text from the summary
-    #
-    # All in all this data should provide the job name, link, 
-    # location, company and summary
-    #
-    # Next step: adjust function to be something like 'get_jobs' that fetches all info and outputs it to a file
+    with open('index.csv', mode='a') as job_file:
+        writer = csv.writer(job_file)
+        writer.writerow(["Position", "Company", "Location", "Summary", "Link"])
+
 
     tag = "div"
     attributes = {"data-tn-component":"organicJob"} # HTML data tags can only be searched if put into a dictionary
@@ -66,6 +54,7 @@ def get_listings(soup):
         current_listing = listing.find("div", class_ = "title")
         job_name = current_listing.a.get('title')
         job_name = " ".join(job_name.split())
+
         print(job_name)
 
         # Get company names
@@ -81,14 +70,14 @@ def get_listings(soup):
 
         # Get job location
         current_listing = listing.find("span", class_ = "location")
-        print(current_listing.text)
+        job_location = current_listing.text
+        print(job_location)
 
         # Get job links
         current_listing = listing.find("div", class_ = "title")
         job_link = current_listing.a.get('href')
-        altered_url = "https://ie.indeed.com" + job_link
-       
-        print(altered_url)
+        job_link = "https://ie.indeed.com" + job_link
+        print(job_link)
 
         # # Get job summaries
         current_listing = listing.find("div", class_ = "summary")
@@ -96,10 +85,9 @@ def get_listings(soup):
         job_summary = " ".join(job_summary.split())
         print(job_summary + "\n")
 
-
-
-    # for listing in listings:
-    #     print(listings)
+        with open('index.csv', mode='a') as job_file:
+            writer = csv.writer(job_file)
+            writer.writerow([job_name, company_name, job_location, job_summary, job_link])
 
     return listings
 
