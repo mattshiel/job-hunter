@@ -9,10 +9,11 @@ def create_search_url(title, location):
 
     base = "https://ie.indeed.com/jobs?q=" 
     location_parametres = "&l=" 
+    result_limit = "&limit=100" # Limit jobs scraped
 
     # Build url with job title and location
     # Adapted from https://www.pythoncentral.io/how-to-build-strings-using-format/
-    url = "{0}{1}{2}{3}".format(base, title, location_parametres, location)     # Using .format() as it's more efficient and lightweight
+    url = "{0}{1}{2}{3}{4}".format(base, title, location_parametres, location, result_limit)     # Using .format() as it's more efficient and lightweight
 
     return url
 
@@ -25,7 +26,7 @@ def get_soup(url):
     # Replace default user agent in request header to avoid being identified as a robot
     # Adapted  from https://pythonprogramming.net/urllib-tutorial-python-3/
     headers['User-Agent'] = "Mozilla/4.0 (Macintosh; Intel Mac OS X 10.14; rv:67.0) Gecko/20100101 Firefox/67.0"
-    # Replace default request with a request with a spoofed header
+    # Replace default request with the request with the spoofed header
     req = urllib.request.Request(url, headers = headers)
     # return HTTP.client.HTTPResponse as soup
     html_doc = urllib.request.urlopen(req)
@@ -34,21 +35,27 @@ def get_soup(url):
     return soup
 
 def get_listings(soup):
-    """Parses through a BeautifulSoup document, retrieves all 
-    job listings and exports to a csv file
+    """Parses through a BeautifulSoup document and retrieves all 
+    job listings
     """
-
-    with open('index.csv', mode='a') as job_file:
-        writer = csv.writer(job_file)
-        writer.writerow(["Position", "Company", "Location", "Summary", "Link"])
-
-
     tag = "div"
     attributes = {"data-tn-component":"organicJob"} # HTML data tags can only be searched if put into a dictionary
     tag_class = "jobsearch-SerpJobCard"
 
     listings = soup.find_all(tag, attrs = attributes, class_ = tag_class) # All job listings contain a data component 'organicJob' and a CSS class with the value 'jobtitle turnstileLink'
-    
+
+    return listings
+
+def export_info(listings):
+    """Writes the position, company name, location, brief summary
+    and link to the website to a CSV file
+    """
+
+    with open('jobs.csv', mode='w+') as job_file: # Write/overwite file if exists (w+)
+        writer = csv.writer(job_file)
+        # Write header name of each column
+        writer.writerow(["Position", "Company", "Location", "Summary", "Link"])
+
     for listing in listings:
         # Get job names
         current_listing = listing.find("div", class_ = "title")
@@ -79,30 +86,19 @@ def get_listings(soup):
         job_link = "https://ie.indeed.com" + job_link
         print(job_link)
 
-        # # Get job summaries
+        # Get job summaries
         current_listing = listing.find("div", class_ = "summary")
         job_summary = current_listing.text
         job_summary = " ".join(job_summary.split())
         print(job_summary + "\n")
 
-        with open('index.csv', mode='a') as job_file:
+
+        with open('jobs.csv', mode='a') as job_file:
             writer = csv.writer(job_file)
             writer.writerow([job_name, company_name, job_location, job_summary, job_link])
 
-    return listings
+    job_file.close()
 
-def export_info(listings):
-    """description
-    """
-    # Get specific info from each job listing
-
-    # title_link_attributes = {}
-
-    # for job in listings:
-    #     title_link_attributes = listings.find("div", class_="title").attrs
-
-    return
-    
 # Program title
 print(
     "\nIndeed Scrapper 1.0\n\n"
@@ -129,5 +125,5 @@ soup = get_soup(url)
 # Get all job listings 
 listings = get_listings(soup)
 
-# Export job information to Excel
-# export_info(listings)
+# Export job listings to a CSV file
+export_info(listings)
